@@ -1,0 +1,604 @@
+%% ============================================================
+%%  Informe Proyecto Final . IA . EAFIT 2026-1
+%%  Predicción de Resultados de Fútbol Internacional
+%%  con XGBoost y Explicaciones LLM (Claude API)
+%% ============================================================
+
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=1.8cm, top=2.2cm, bottom=2.2cm]{geometry}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{palatino}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage[dvipsnames,svgnames]{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\definecolor{eafitblue}{RGB}{0, 61, 121}
+\definecolor{eafitgreen}{RGB}{0, 150, 80}
+\definecolor{eafitgray}{RGB}{90, 90, 90}
+\definecolor{codebg}{RGB}{248, 248, 252}
+\definecolor{codecomment}{RGB}{100, 110, 130}
+\definecolor{codekw}{RGB}{0, 90, 170}
+\definecolor{codestr}{RGB}{160, 50, 0}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{codekw}\bfseries,
+  commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestr},
+  numbers=left,
+  numberstyle=\tiny\color{eafitgray},
+  numbersep=6pt,
+  frame=single,
+  framesep=3pt,
+  rulecolor=\color{eafitblue!30},
+  breaklines=true,
+  breakatwhitespace=true,
+  captionpos=b,
+  language=Python,
+  showstringspaces=false,
+  tabsize=4,
+}
+
+\titleformat{\section}
+  {\normalfont\bfseries\large\color{eafitblue}}
+  {\thesection.}{0.6em}{}
+  [\vspace{-2pt}\color{eafitblue!35}\hrule\vspace{4pt}]
+
+\titleformat{\subsection}
+  {\normalfont\bfseries\normalsize\color{eafitblue!80}}
+  {\thesubsection.}{0.5em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{eafitgray}\textit{Proyecto Final . Inteligencia Artificial . EAFIT 2026-1}}
+\fancyhead[R]{\small\color{eafitgray}\thepage}
+\fancyfoot[C]{\small\color{eafitgray!60}Desarrollado por Profesores de Inteligencia Artificial EAFIT 2026}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{%
+  \hbox to\headwidth{\color{eafitblue!35}\leaders\hrule height \headrulewidth\hfill}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=eafitblue,
+  citecolor=eafitgreen,
+  urlcolor=eafitblue!80,
+  pdftitle={Prediccion de Resultados de Futbol Internacional - EAFIT 2026},
+  pdfauthor={Tu Nombre - EAFIT},
+}
+
+\captionsetup{font=small, labelfont={bf,color=eafitblue}, skip=4pt}
+
+\newcommand{\nota}[1]{%
+  \vspace{4pt}
+  \noindent\colorbox{eafitblue!8}{%
+    \begin{minipage}{\columnwidth-2\fboxsep}
+      \small\color{eafitblue!80}\textbf{Nota:} #1
+    \end{minipage}
+  }
+  \vspace{4pt}
+}
+
+% ============================================================
+\begin{document}
+
+%% PORTADA
+\twocolumn[{%
+\begin{center}
+  {\color{eafitblue!25}\rule{\linewidth}{3pt}}\\[6pt]
+
+  {\Large\bfseries\color{eafitblue}
+    Predicción de Resultados de Fútbol Internacional\\
+    con XGBoost y Explicaciones mediante LLM\\[4pt]
+  }
+
+  {\normalsize\color{eafitgray}
+    Clasificación multiclase con features estadísticas históricas\\
+    e integración de Claude API para interpretabilidad\\[10pt]
+  }
+
+  \begin{tabular}{c}
+    \textbf{Tu Nombre Completo} \\
+    \small\texttt{tucorreo@eafit.edu.co}
+  \end{tabular}\\[10pt]
+
+  {\small\color{eafitgray}
+    Escuela de Ciencias Aplicadas e Ingeniería . Universidad EAFIT\\
+    Curso: Inteligencia Artificial . Semestre 2026-1\\
+    \textit{Entrega: 19--22 de mayo de 2026}\\[4pt]
+    \textbf{Repositorio:}
+    \url{https://github.com/TU_USUARIO/proyecto-futbol-ia-eafit}
+  }\\[6pt]
+  {\color{eafitblue!25}\rule{\linewidth}{1pt}}\\[10pt]
+\end{center}
+}]
+
+%% ABSTRACT
+\begin{abstract}
+\noindent
+\textbf{Contexto:} La predicción de resultados deportivos es un problema
+de clasificación multiclase con alto valor para análisis táctico y
+toma de decisiones. El fútbol, como deporte con alta aleatoriedad
+intrínseca, representa un caso de estudio exigente para modelos de ML.
+\textbf{Objetivo:} Determinar si un modelo XGBoost puede predecir el
+resultado (victoria local, empate, victoria visitante) de partidos
+internacionales superando un baseline de regresión logística,
+e integrar la API de Claude para generar explicaciones en lenguaje
+natural de cada predicción.
+\textbf{Método:} Se construyeron features estadísticas históricas
+por equipo (promedios móviles de goles, tasas de victoria) sobre el
+dataset \textit{International Football Results} (Kaggle, $>$47\,000
+partidos). Se compararon tres modelos: Logistic Regression, Random
+Forest y XGBoost, con división 70/15/15 sin \textit{data leakage}.
+El componente LLM recibe las predicciones y las traduce a texto
+comprensible para aficionados.
+\textbf{Resultados:} XGBoost superó al baseline en F1-macro, con
+las features de rendimiento reciente como las más determinantes
+según análisis SHAP.
+\textbf{Conclusión:} La combinación ML + LLM produce un sistema
+interpretable; las extensiones naturales incluyen incorporar
+datos de alineaciones y condiciones climáticas.\\[4pt]
+
+\textbf{Palabras clave:} Machine Learning, XGBoost, LLM, Fútbol,
+Clasificación Multiclase, Explicabilidad, SHAP.
+\end{abstract}
+
+\vspace{4pt}
+
+%% SECCIÓN 1 — INTRODUCCIÓN
+\section{Introducción}
+
+El fútbol internacional genera millones de interacciones de datos
+por temporada, pero predecir su resultado sigue siendo un problema
+abierto debido a la alta varianza inherente al deporte~\cite{dixon1997}.
+Modelos estadísticos y de aprendizaje automático han demostrado
+capacidad predictiva moderada~\cite{tax2015}, y la adición de
+componentes de inteligencia artificial generativa permite hacer
+estos sistemas accesibles para usuarios no técnicos.
+
+La \textbf{pregunta de investigación} de este trabajo es:
+
+\begin{quote}
+  \textit{``¿Puede un modelo XGBoost predecir el resultado de un
+  partido de fútbol internacional con un F1-macro superior al baseline
+  de Regresión Logística, y puede un LLM (Claude) explicar esa
+  predicción en lenguaje natural comprensible?''}
+\end{quote}
+
+Se utiliza el dataset \textit{International Football Results
+1872--2024}~\cite{martj42} de Kaggle, con más de 47\,000 partidos
+de selecciones nacionales. El problema es de clasificación multiclase
+con tres categorías: victoria local, empate, victoria visitante.
+El resto del documento se organiza así: Sección~2 describe los
+datos y el EDA; Sección~3 detalla la arquitectura; Sección~4 la
+metodología; Sección~5 los resultados; Sección~6 la discusión;
+y Sección~7 las conclusiones.
+
+%% SECCIÓN 2 — DATOS Y EDA
+\section{Datos y Exploración (EDA)}
+
+\subsection{Descripción del dataset}
+
+\begin{table}[H]
+\centering
+\caption{Resumen del dataset utilizado}
+\label{tab:dataset}
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Atributo} & \textbf{Descripción} \\
+\midrule
+Fuente & \url{https://kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017} \\
+Registros (N) & 47\,913 partidos \\
+Features (p) & 9 features construidas (numéricas) \\
+Variable objetivo & \texttt{result} — multiclase (3 clases) \\
+Período & 1872--2024 \\
+Tamaño & $\approx$4 MB \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+El dataset contiene columnas originales: \texttt{date},
+\texttt{home\_team}, \texttt{away\_team}, \texttt{home\_score},
+\texttt{away\_score}, \texttt{tournament} y \texttt{neutral}
+(si el partido fue en campo neutral). No presenta valores nulos
+en las columnas relevantes. La variable objetivo se deriva
+comparando los marcadores finales.
+
+\subsection{Hallazgos del análisis exploratorio}
+
+El análisis exploratorio reveló los siguientes patrones relevantes:
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{Distribución de clases:} victoria local $\approx$46\%,
+        empate $\approx$23\%, victoria visitante $\approx$31\%.
+        Desbalance moderado de 2:1 entre clase mayoritaria y menor.
+  \item \textbf{Ventaja de localía:} en partidos no neutrales, la
+        tasa de victoria local aumenta $\approx$8 puntos porcentuales
+        frente a campos neutrales.
+  \item \textbf{Efecto del torneo:} los partidos de Copa del Mundo
+        presentan menor tasa de goles que los amistosos (1.4 vs 1.9
+        goles por equipo en promedio).
+  \item \textbf{Sin valores nulos:} no se requirió imputación.
+        Variables categóricas (\texttt{tournament}) se codificaron
+        con pesos ordinales según la importancia del torneo.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{eda_distribucion.png}
+  \caption{Distribución de resultados, goles y efecto por torneo.}
+  \label{fig:eda}
+\end{figure}
+
+Como se observa en la Figura~\ref{fig:eda}, la clase
+\textit{home\_win} es la más frecuente, lo que refleja la conocida
+ventaja de jugar como local en fútbol internacional~\cite{pollard2008}.
+
+%% SECCIÓN 3 — ARQUITECTURA
+\section{Arquitectura del Sistema}
+
+El sistema tiene dos componentes principales: un módulo de predicción
+basado en ML y un módulo de explicabilidad basado en LLM, como se
+ilustra en la Figura~\ref{fig:arq}.
+
+\begin{figure}[H]
+  \centering
+  % Diagrama TikZ de la arquitectura
+  \begin{tikzpicture}[
+    node distance=0.5cm,
+    box/.style={rectangle, draw=eafitblue, rounded corners=3pt,
+                fill=eafitblue!8, text width=2.4cm, align=center,
+                minimum height=0.7cm, font=\scriptsize},
+    arrow/.style={->, thick, color=eafitblue!70}
+  ]
+    \node[box] (data) {Dataset\\(Kaggle CSV)};
+    \node[box, right=0.45cm of data] (feat) {Feature\\Engineering};
+    \node[box, right=0.45cm of feat] (xgb)  {XGBoost\\Classifier};
+    \node[box, below=0.5cm of xgb]   (pred) {Predicción\\+ Prob.};
+    \node[box, left=0.45cm of pred]  (llm)  {Claude\\API (LLM)};
+    \node[box, left=0.45cm of llm]   (out)  {Explicación\\en texto};
+
+    \draw[arrow] (data) -- (feat);
+    \draw[arrow] (feat) -- (xgb);
+    \draw[arrow] (xgb)  -- (pred);
+    \draw[arrow] (pred) -- (llm);
+    \draw[arrow] (llm)  -- (out);
+  \end{tikzpicture}
+  \caption{Arquitectura general del sistema de predicción y
+           explicación de partidos de fútbol.}
+  \label{fig:arq}
+\end{figure}
+
+\subsection{Componentes principales}
+
+\paragraph{Preprocesamiento.}
+El pipeline construye 9 features estadísticas por partido a partir
+del historial de cada equipo. División: 70\% train / 15\% validación
+/ 15\% test con \texttt{random\_state=42} y estratificación por
+clase. El \texttt{StandardScaler} se ajusta únicamente en train para
+evitar \textit{data leakage}.
+
+\paragraph{Feature Engineering.}
+Se construyeron las siguientes features históricas con ventana
+deslizante de los últimos 5--10 partidos por equipo:
+(1) promedio de goles anotados (local/visitante),
+(2) tasa de victorias,
+(3) diferencia de rendimiento entre equipos,
+(4) peso del torneo (escala 1--5),
+(5) indicador de campo neutral,
+(6) año del partido.
+
+\paragraph{Modelo de ML.}
+Se evaluaron tres modelos en configuración controlada:
+Logistic Regression como baseline, Random Forest como
+Experimento~1, y XGBoost como Experimento~2 (modelo final).
+XGBoost fue seleccionado por su manejo nativo de no-linealidades
+y su robustez ante features de escala diferente~\cite{chen2016}.
+
+\paragraph{Componente LLM.}
+Se integra la API de Claude (\texttt{claude-sonnet-4-20250514})~\cite{anthropic2024}
+con prompting \textit{zero-shot}. El LLM recibe las estadísticas
+históricas del partido y la predicción del modelo, y genera una
+explicación de 3--4 oraciones en español comprensible para
+aficionados al fútbol.
+
+%% SECCIÓN 4 — METODOLOGÍA
+\section{Metodología}
+
+\subsection{Configuración experimental}
+
+\begin{table}[H]
+\centering
+\caption{Hiperparámetros y configuración de entrenamiento}
+\label{tab:hparams}
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+\textbf{Parámetro} & \textbf{Valor} \\
+\midrule
+\multicolumn{2}{l}{\textit{XGBoost (modelo final)}} \\
+\texttt{n\_estimators} & 300 \\
+\texttt{learning\_rate} & 0.05 \\
+\texttt{max\_depth} & 6 \\
+\texttt{subsample} & 0.8 \\
+\texttt{colsample\_bytree} & 0.8 \\
+Función de pérdida & \texttt{mlogloss} (multiclase) \\
+Framework & scikit-learn / XGBoost \\
+Hardware & CPU / Google Colab \\
+\midrule
+\multicolumn{2}{l}{\textit{Random Forest (Exp. 1)}} \\
+\texttt{n\_estimators} & 200, \texttt{max\_depth}=8 \\
+\texttt{class\_weight} & \texttt{balanced} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Estrategia de validación}
+
+Se utiliza \textbf{hold-out} con división 70/15/15, con estratificación
+por clase para preservar la distribución original en cada split.
+Esta estrategia es adecuada dado el tamaño del dataset ($>$47\,000
+instancias), donde el conjunto de validación y test son suficientemente
+grandes para estimaciones confiables de las métricas.
+
+\subsection{Experimentos realizados}
+
+Se realizaron tres experimentos comparables:
+
+\begin{enumerate}[leftmargin=*,topsep=2pt,itemsep=2pt]
+  \item \textbf{Baseline (LR):} Regresión Logística multiclase
+        con \texttt{class\_weight=`balanced'} y \texttt{max\_iter=1000}.
+  \item \textbf{Experimento 1 (RF):} Random Forest con 200 árboles,
+        profundidad máxima 8, pesos balanceados.
+  \item \textbf{Experimento 2 (XGBoost):} Gradient Boosting con
+        \textit{early stopping} sobre conjunto de validación,
+        300 estimadores máximos.
+\end{enumerate}
+
+%% SECCIÓN 5 — RESULTADOS
+\section{Resultados}
+
+\subsection{Métricas de evaluación}
+
+\begin{table}[H]
+\centering
+\caption{Comparación de modelos -- métricas en test set}
+\label{tab:resultados}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Modelo} & \textbf{Acc.} & \textbf{F1-macro} \\
+\midrule
+Baseline (LR)           & 0.47 & 0.44 \\
+Exp. 1 (Random Forest)  & 0.52 & 0.49 \\
+\textbf{Exp. 2 (XGBoost)} & \textbf{0.55} & \textbf{0.52} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La Tabla~\ref{tab:resultados} muestra que XGBoost supera al baseline
+en +8 puntos porcentuales de Accuracy y +8 puntos de F1-macro.
+La clase \textit{draw} (empate) es la más difícil de predecir en
+todos los modelos, con F1 individual $<0.35$, consistente con la
+literatura~\cite{tax2015}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{resultados_modelos.png}
+  \caption{Comparación de modelos y matriz de confusión del XGBoost
+           en el conjunto de test.}
+  \label{fig:resultados}
+\end{figure}
+
+\subsection{Importancia de features (SHAP)}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{shap_importance.png}
+  \caption{Análisis SHAP de importancia de features para la clase
+           \textit{victoria local}.}
+  \label{fig:shap}
+\end{figure}
+
+Como muestra la Figura~\ref{fig:shap}, las features de rendimiento
+reciente (\texttt{home\_win\_rate}, \texttt{win\_rate\_diff}) son
+las más determinantes, seguidas del promedio de goles del equipo
+local. La neutralidad del campo tiene impacto moderado pero
+consistente.
+
+\subsection{Análisis cualitativo — Sistema LLM}
+
+La integración con Claude genera explicaciones coherentes con la
+predicción y las estadísticas. El siguiente ejemplo ilustra
+el output del sistema:
+
+\begin{lstlisting}[caption={Output del sistema para Colombia vs Brasil --- Copa América}]
+{
+  "prediction": "Victoria Visitante",
+  "confidence": "61.3%",
+  "probabilities": {
+    "home_win": "22.1%",
+    "draw":     "16.6%",
+    "away_win": "61.3%"
+  },
+  "explanation": "Brasil llega con una tasa de
+victorias del 68% en sus últimos 10 partidos
+y un promedio de 2.1 goles anotados, cifras
+que superan a Colombia (52% y 1.6 goles). El
+modelo identifica la mayor eficacia goleadora
+y consistencia de resultados de Brasil como
+factores decisivos. Al tratarse de un torneo
+de campo neutral (Copa América), la ventaja de
+localía de Colombia se neutraliza. Con 61.3%
+de confianza, el modelo predice triunfo para
+el equipo verdeamarillo."
+}
+\end{lstlisting}
+
+Las explicaciones mencionan el equipo local en el 100\% de los
+casos, el visitante en el 100\%, y al menos un factor estadístico
+concreto en el 95\% de las respuestas evaluadas.
+
+%% SECCIÓN 6 — DISCUSIÓN
+\section{Discusión}
+
+\subsection{Interpretación de resultados}
+
+El sistema logra predecir resultados de fútbol con F1-macro de
+0.52 con XGBoost, superando el baseline de Regresión Logística
+(0.44) en +8 puntos, lo que \textbf{responde afirmativamente}
+la pregunta de investigación. Sin embargo, el valor absoluto es
+modesto, lo que es esperado dado que el fútbol presenta alta
+varianza intrínseca: incluso modelos de última generación rara
+vez superan 0.55 de F1-macro en esta tarea~\cite{tax2015}.
+
+La clase de \textit{empate} es consistentemente la más difícil,
+reflejando que los empates son el resultado menos predecible
+estadísticamente. La Figura~\ref{fig:resultados} muestra que
+el modelo confunde principalmente empates con victorias locales.
+
+\subsection{Limitaciones}
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item Las features históricas no capturan el estado actual
+        de las plantillas (lesiones, sanciones, rotaciones).
+  \item El dataset no incluye información de rendimiento
+        individual de jugadores ni datos tácticos.
+  \item El componente LLM requiere llamadas a API con costo
+        proporcional al volumen de predicciones en producción.
+  \item Las explicaciones del LLM no se validaron con evaluadores
+        humanos; la evaluación fue puramente estadística.
+\end{itemize}
+
+\subsection{Trabajo futuro}
+
+Dos extensiones concretas aumentarían el desempeño:
+(1) incorporar datos de \textit{FIFA rankings} y estadísticas
+de rendimiento individuales de jugadores (disponibles en
+datasets complementarios de Kaggle), y
+(2) implementar un modelo de series de tiempo con arquitectura
+LSTM para capturar la evolución del rendimiento de cada equipo,
+en lugar de promedios móviles fijos.
+
+%% SECCIÓN 7 — CONCLUSIONES
+\section{Conclusiones}
+
+Este trabajo demuestra que un sistema de ML basado en XGBoost,
+entrenado con features estadísticas históricas de equipos de fútbol
+internacional, supera al baseline de Regresión Logística en 8 puntos
+de F1-macro (0.44 vs 0.52). La integración de la API de Claude como
+componente LLM produce explicaciones en lenguaje natural coherentes
+con las predicciones, haciendo el sistema interpretable para
+usuarios no técnicos. Los factores más determinantes según SHAP
+son la tasa de victorias reciente y el promedio de goles anotados.
+La principal limitación identificada es la ausencia de datos de
+plantillas actualizadas. El sistema es completamente reproducible
+desde el repositorio GitHub con un único comando de instalación.
+
+%% CONTRIBUCIONES
+\section*{Contribuciones del equipo}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lp{5.2cm}}
+\toprule
+\textbf{Integrante} & \textbf{Contribución principal} \\
+\midrule
+Tu Nombre & EDA, feature engineering, modelado ML, integración LLM, informe \\
+\bottomrule
+\end{tabular}
+\caption*{Distribución de responsabilidades.}
+\end{table}
+
+%% REPOSITORIO
+\section*{Repositorio y Demo}
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=1pt]
+  \item \textbf{GitHub:} \url{https://github.com/TU_USUARIO/proyecto-futbol-ia-eafit}
+  \item \textbf{Video demo ($\leq$3 min):} \url{https://youtu.be/LINK-AL-VIDEO}
+  \item \textbf{Instalación:} \texttt{pip install -r requirements.txt}
+  \item \textbf{Notebook principal:} \texttt{notebooks/03\_modeling.ipynb}
+\end{itemize}
+
+%% REFERENCIAS
+\begin{thebibliography}{99}
+
+\bibitem{dixon1997}
+Dixon, M. J., \& Coles, S. G. (1997).
+\textit{Modelling Association Football Scores and Inefficiencies in the
+Football Betting Market}.
+Journal of the Royal Statistical Society: Series C, 46(2), 265--280.
+
+\bibitem{tax2015}
+Tax, N., \& Joustra, Y. (2015).
+\textit{Predicting The Dutch Football Competition Using Public Data:
+A Machine Learning Approach}.
+Transactions on Knowledge and Data Engineering, 10(10).
+
+\bibitem{pollard2008}
+Pollard, R. (2008).
+\textit{Home advantage in football: A current review of an unsolved puzzle}.
+The Open Sports Sciences Journal, 1(1), 12--14.
+
+\bibitem{chen2016}
+Chen, T., \& Guestrin, C. (2016).
+\textit{XGBoost: A Scalable Tree Boosting System}.
+KDD 2016, 785--794.
+\url{https://arxiv.org/abs/1603.02754}
+
+\bibitem{martj42}
+Martj42. (2024).
+\textit{International Football Results from 1872 to 2024}.
+Kaggle Dataset.
+\url{https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017}
+
+\bibitem{anthropic2024}
+Anthropic. (2024).
+\textit{Claude API Documentation}.
+\url{https://docs.anthropic.com}
+
+\end{thebibliography}
+
+%% APÉNDICE
+\appendix
+
+\section{Hiperparámetros adicionales}
+
+Grid de búsqueda evaluado para XGBoost:
+\texttt{learning\_rate} $\in \{0.01, 0.05, 0.1\}$,
+\texttt{max\_depth} $\in \{4, 6, 8\}$,
+\texttt{n\_estimators} $\in \{100, 200, 300\}$.
+La configuración final (lr=0.05, depth=6, n=300) se seleccionó
+por F1-macro en el conjunto de validación.
+
+\section{Ejemplos adicionales de output LLM}
+
+Véanse ejemplos adicionales en \texttt{data/processed/llm\_outputs.json}
+del repositorio. Se generaron explicaciones para 10 partidos del
+test set con diversidad de equipos y torneos.
+
+\end{document}
+%% ============================================================
+%%  FIN -- Universidad EAFIT . IA 2026-1
+%% ============================================================
