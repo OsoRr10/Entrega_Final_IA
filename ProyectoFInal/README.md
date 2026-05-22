@@ -112,7 +112,7 @@ Correr en orden: `01_eda.ipynb` → `02_preprocessing.ipynb` → `03_modeling.ip
 
 | Nombre | Correo |
 |--------|--------|
-| Tu Nombre Completo | tucorreo@eafit.edu.co |
+| Juan Jose Osorio Arango | jjosorioa3@eafit.edu.co |
 
 ---
 
