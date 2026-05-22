@@ -43,8 +43,8 @@ proyecto-futbol/
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/TU_USUARIO/proyecto-futbol-ia-eafit.git
-cd proyecto-futbol-ia-eafit
+git clone https://github.com/OsoRr10/Entrega_Final_IA
+cd proyectoFinal
 ```
 
 ### 2. Instalar dependencias
