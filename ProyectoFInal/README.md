@@ -58,11 +58,9 @@ Guardar `results.csv` en `data/raw/results.csv`
 
 *(Alternativamente, los notebooks incluyen generación de datos sintéticos para correr sin credenciales de Kaggle)*
 
-### 4. Configurar API key de Claude (para el notebook 04)
-```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
-```
-Obtener key gratuita en: https://console.anthropic.com
+### 4. Configurar API key de gemini (para el notebook 04)
+
+
 
 ### 5. Ejecutar los notebooks en orden
 ```bash
