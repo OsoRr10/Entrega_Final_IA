@@ -29,7 +29,7 @@ proyecto-futbol/
 │   ├── 01_eda.ipynb                ← Análisis exploratorio
 │   ├── 02_preprocessing.ipynb     ← Feature engineering + split
 │   ├── 03_modeling.ipynb          ← LR, RF, XGBoost + evaluación
-│   └── 04_llm_explicaciones.ipynb ← Integración Claude API
+│   └── 04_llm_explicaciones.ipynb ← Integración Gemini API
 ├── data/
 │   ├── raw/                        ← Dataset original (descargar de Kaggle)
 │   └── processed/                  ← Datos procesados (generados por los notebooks)
