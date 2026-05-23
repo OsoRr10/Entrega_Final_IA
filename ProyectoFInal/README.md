@@ -102,7 +102,7 @@ Correr en orden: `01_eda.ipynb` → `02_preprocessing.ipynb` → `03_modeling.ip
 
 ## 🎥 Video demo
 
-📹 [Ver demo ]([https://youtu.be/LINK-AL-VIDEO](https://eafit-my.sharepoint.com/:v:/g/personal/jjosorioa3_eafit_edu_co/IQD2hjciQGGzT4WxZkkKzTkNATG_p692zYRX7aHjHrXYmdA?e=3z7RbM)) 
+📹 [Ver demo ]([https://youtu.be/LINK-AL-VIDEO](https://eafit-my.sharepoint.com/:v:/g/personal/jjosorioa3_eafit_edu_co/IQD2hjciQGGzT4WxZkkKzTkNATG_p692zYRX7aHjHrXYmdA?e=3z7RbM)]) 
 
 ---
 
